@@ -477,8 +477,13 @@ header.scrolled { box-shadow: 0 12px 30px rgba(80, 55, 34, .08); }
 .sticky-toc-sidebar {
   position: fixed;
   top: 112px;
-  left: calc((100vw - var(--max-reading-width)) / 2 - 296px);
-  width: 228px;
+  /* Keep the sticky TOC in the left gutter of the full 1180px layout,
+     not beside the narrower reading column. This prevents it from
+     sitting over hero/main text on standard desktop widths. */
+  left: calc((100vw - var(--max-wide-width)) / 2 - 285px);
+  width: 240px;
+  max-height: calc(100vh - 136px);
+  overflow: auto;
   z-index: 30;
   background: rgba(255,250,241,.94);
   border: 1px solid var(--color-border);
@@ -963,7 +968,7 @@ footer a:hover { color: #fff; }
   font-size: 13px;
 }
 
-@media (max-width: 1480px) {
+@media (max-width: 1789px) {
   .sticky-toc-sidebar { display: none; }
 }
 @media (max-width: 980px) {
