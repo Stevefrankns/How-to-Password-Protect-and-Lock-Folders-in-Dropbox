@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>How to Password Protect and Lock Folders in Dropbox</title>
+<meta content="Learn how to lock a folder in Dropbox, restrict access, and encrypt files before syncing. A complete guide to Dropbox folder security and password protection." name="description"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&amp;family=Merriweather+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+
+:root {
+  --color-background: #FAF7F2;
+  --color-hero-bg: #F0EBE0;
+  --color-primary-accent: #8B5E3C;
+  --color-primary-accent-dark: #6f4528;
+  --color-secondary-accent: #4A7C59;
+  --color-card: #FFFFFF;
+  --color-border: #E0D8CC;
+  --color-body-text: #2E2416;
+  --color-muted: #735f4c;
+  --color-green-tint: #edf5ec;
+  --color-parchment: #fffaf1;
+  --font-heading: 'Lora', serif;
+  --font-body: 'Merriweather Sans', sans-serif;
+  --max-reading-width: 740px;
+  --max-wide-width: 1180px;
+  --section-padding-v: 72px;
+  --radius-card: 22px;
+  --shadow-card: 0 18px 45px rgba(80, 55, 34, 0.09);
+  --shadow-soft: 0 8px 24px rgba(80, 55, 34, 0.08);
+  --transition-speed: 220ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  color: var(--color-body-text);
+  background:
+    radial-gradient(circle at top left, rgba(139, 94, 60, 0.08), transparent 34rem),
+    linear-gradient(180deg, #FAF7F2 0%, #F7F1E8 100%);
+  line-height: 1.9;
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .26;
+  background-image:
+    linear-gradient(rgba(139, 94, 60, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 94, 60, .035) 1px, transparent 1px);
+  background-size: 42px 42px;
+  z-index: -1;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+  color: var(--color-body-text);
+  line-height: 1.16;
+  letter-spacing: -0.018em;
+  margin-bottom: 1rem;
+}
+h1 {
+  font-size: clamp(36px, 5.4vw, 58px);
+  font-weight: 700;
+  max-width: 720px;
+}
+h2 {
+  font-size: clamp(28px, 3.2vw, 42px);
+  font-weight: 600;
+  margin-top: 0;
+}
+h3 { font-size: clamp(22px, 2.2vw, 29px); font-weight: 700; margin-top: 1.5rem; }
+h4 { font-size: 1.12rem; font-weight: 700; }
+p { margin-bottom: 1.25rem; max-width: var(--max-reading-width); }
+a {
+  color: var(--color-primary-accent);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color var(--transition-speed), background var(--transition-speed), border-color var(--transition-speed), transform var(--transition-speed);
+}
+a:hover { color: var(--color-primary-accent-dark); }
+ul, ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+li { margin-bottom: 0.58rem; }
+img { max-width: 100%; height: auto; display: block; }
+
+#reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary-accent), #b88455);
+  z-index: 2000;
+  box-shadow: 0 0 10px rgba(139, 94, 60, .35);
+}
+
+.container {
+  width: 100%;
+  max-width: calc(var(--max-reading-width) + 48px);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.container-wide { max-width: var(--max-wide-width); }
+.container-full {
+  width: 100%;
+  max-width: var(--max-wide-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+section { padding: var(--section-padding-v) 0; position: relative; }
+.bg-tint {
+  background:
+    linear-gradient(180deg, rgba(240, 235, 224, .72), rgba(250, 247, 242, .72));
+  border-top: 1px solid rgba(224, 216, 204, .65);
+  border-bottom: 1px solid rgba(224, 216, 204, .65);
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(250, 247, 242, .92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--color-border);
+}
+header.scrolled { box-shadow: 0 12px 30px rgba(80, 55, 34, .08); }
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 74px;
+  max-width: var(--max-wide-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 20px;
+}
+.brand-logo-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.site-name {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-body-text);
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.brand-mark {
+  width: 42px;
+  height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #a7754f, var(--color-primary-accent));
+  position: relative;
+  display: inline-block;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 10px 22px rgba(139,94,60,.18);
+}
+.brand-folder-shape {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  height: 18px;
+  border-radius: 5px 5px 7px 7px;
+  background: #fff6e8;
+  box-shadow: 0 -8px 0 -2px rgba(255,246,232,.78);
+}
+.brand-folder-shape::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -6px;
+  width: 15px;
+  height: 7px;
+  border-radius: 4px 4px 0 0;
+  background: #fff6e8;
+}
+.brand-lock-shape {
+  position: absolute;
+  left: 16px;
+  top: 10px;
+  width: 11px;
+  height: 13px;
+  border-radius: 4px;
+  border: 2px solid var(--color-secondary-accent);
+  background: transparent;
+}
+.brand-lock-shape::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  bottom: 2px;
+  width: 3px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-secondary-accent);
+}
+.nav-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.nav-links a {
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-decoration: none;
+}
+.nav-links a:hover { color: var(--color-primary-accent); }
+.nav-cta {
+  color: #fff !important;
+  background: var(--color-primary-accent);
+  border: 1px solid var(--color-primary-accent);
+  padding: 10px 14px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(139,94,60,.18);
+}
+.nav-cta:hover { transform: translateY(-1px); background: var(--color-primary-accent-dark); }
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 10px;
+}
+.mobile-menu-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--color-body-text);
+  margin-bottom: 5px;
+}
+.mobile-menu-btn span:last-child { margin-bottom: 0; }
+
+.hero {
+  background:
+    radial-gradient(circle at 82% 25%, rgba(74,124,89,.14), transparent 22rem),
+    linear-gradient(135deg, var(--color-hero-bg), #f6efe3);
+  padding: 84px 0 72px;
+  overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 56px;
+  align-items: center;
+}
+.hero-copy { max-width: 760px; }
+.breadcrumb {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 22px;
+  text-transform: uppercase;
+  letter-spacing: .13em;
+  font-weight: 700;
+}
+.breadcrumb a { color: var(--color-muted); text-decoration: none; }
+.hero-intro {
+  font-size: 1.08rem;
+  color: var(--color-muted);
+  margin-bottom: 26px;
+  max-width: 690px;
+}
+.quick-answer {
+  background: linear-gradient(180deg, rgba(255,250,241,.98), rgba(255,255,255,.9));
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary-accent);
+  border-radius: 0 20px 20px 0;
+  padding: 26px 28px;
+  margin: 28px 0 16px;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+}
+.quick-answer p { margin-bottom: 0; }
+.label-caps {
+  display: inline-block;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--color-primary-accent);
+  margin-bottom: 12px;
+}
+.meta-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-weight: 700;
+  border: 0;
+  padding-top: 0;
+  margin: 18px 0 0;
+}
+.hero-illustration {
+  width: 330px;
+  height: 360px;
+  border: 1px solid var(--color-border);
+  border-radius: 38px;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.72), rgba(240,235,224,.9)),
+    radial-gradient(circle at 50% 25%, rgba(139,94,60,.12), transparent 14rem);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  justify-self: end;
+}
+.doc-stack {
+  position: absolute;
+  width: 168px;
+  height: 220px;
+  border-radius: 18px;
+  background: #fffaf1;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 22px 36px rgba(80,55,34,.10);
+}
+.doc-one { right: 44px; top: 48px; transform: rotate(4deg); }
+.doc-two { right: 78px; top: 72px; transform: rotate(-7deg); opacity: .92; }
+.doc-stack::before, .doc-stack::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(139,94,60,.18);
+}
+.doc-stack::before { top: 48px; width: 96px; }
+.doc-stack::after { top: 74px; width: 118px; }
+.folder-illustration {
+  position: absolute;
+  left: 34px;
+  bottom: 54px;
+  width: 224px;
+  height: 142px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #b47b51, var(--color-primary-accent));
+  box-shadow: 0 24px 44px rgba(139,94,60,.28);
+}
+.folder-tab {
+  position: absolute;
+  left: 54px;
+  bottom: 185px;
+  width: 94px;
+  height: 34px;
+  border-radius: 14px 18px 0 0;
+  background: #b47b51;
+}
+.folder-lock {
+  position: absolute;
+  left: 116px;
+  bottom: 96px;
+  width: 70px;
+  height: 58px;
+  border-radius: 18px;
+  background: #fff6e8;
+  box-shadow: inset 0 -6px 0 rgba(139,94,60,.08);
+}
+.folder-lock::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: -34px;
+  width: 36px;
+  height: 40px;
+  border-radius: 26px 26px 0 0;
+  border: 9px solid #fff6e8;
+  border-bottom: 0;
+}
+.folder-keyhole {
+  position: absolute;
+  left: 147px;
+  bottom: 113px;
+  width: 9px;
+  height: 20px;
+  border-radius: 9px;
+  background: var(--color-secondary-accent);
+}
+.folder-leaf {
+  position: absolute;
+  right: 48px;
+  bottom: 56px;
+  width: 54px;
+  height: 34px;
+  border-radius: 100% 0 100% 0;
+  background: rgba(74,124,89,.82);
+  transform: rotate(-14deg);
+}
+
+.content-img {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+  border-radius: 24px;
+  margin: 34px 0;
+  box-shadow: var(--shadow-card);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  padding: 10px;
+}
+.compact-illustration {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  background: #fffaf1;
+}
+.product-inline {
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 14px;
+}
+.hero-img { display: none !important; }
+
+.toc-card {
+  background: linear-gradient(180deg, #fffaf1, #fff);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: 28px;
+  margin-bottom: 0;
+  box-shadow: var(--shadow-soft);
+}
+.toc-card h3 { margin-top: 0; font-size: 1.25rem; }
+.toc-card ul {
+  list-style: none;
+  counter-reset: toc;
+  padding-left: 0;
+  margin-bottom: 0;
+  display: grid;
+  gap: 10px;
+}
+.toc-card li {
+  counter-increment: toc;
+  margin: 0;
+}
+.toc-card a {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  align-items: start;
+  color: var(--color-body-text);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+.toc-card a::before {
+  content: counter(toc, decimal-leading-zero);
+  color: var(--color-primary-accent);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+.toc-card a:hover {
+  background: rgba(139,94,60,.07);
+  color: var(--color-primary-accent);
+}
+
+.sticky-toc-sidebar {
+  position: fixed;
+  top: 112px;
+  left: calc((100vw - var(--max-reading-width)) / 2 - 296px);
+  width: 228px;
+  z-index: 30;
+  background: rgba(255,250,241,.94);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+.sidebar-kicker {
+  display: block;
+  color: var(--color-primary-accent);
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 10px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.sticky-toc-sidebar ul { list-style: none; padding: 0; margin: 0; }
+.sticky-toc-sidebar li { margin: 0; }
+.sticky-toc-sidebar a {
+  display: block;
+  padding: 8px 0 8px 12px;
+  border-left: 2px solid rgba(224,216,204,.9);
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  text-decoration: none;
+}
+.sticky-toc-sidebar a.active,
+.sticky-toc-sidebar a:hover {
+  color: var(--color-primary-accent);
+  border-left-color: var(--color-primary-accent);
+}
+.mobile-current-section { display: none; }
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  padding: 30px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--color-border);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  border: 1.5px solid var(--color-primary-accent);
+  text-decoration: none;
+}
+.btn-outline { background: transparent; color: var(--color-primary-accent); }
+.btn-outline:hover { background: var(--color-primary-accent); color: #fff; text-decoration: none; transform: translateY(-1px); }
+.btn-filled { background: var(--color-primary-accent); color: #fff; }
+.btn-filled:hover { background: var(--color-primary-accent-dark); color: #fff; text-decoration: none; transform: translateY(-1px); }
+
+.callout {
+  background: var(--color-green-tint);
+  border-left: 4px solid var(--color-secondary-accent);
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-radius: 0 18px 18px 0;
+  font-style: italic;
+  color: #263d2d;
+}
+.callout strong { font-style: normal; color: var(--color-secondary-accent); }
+
+.pull-quote {
+  position: relative;
+  margin: 38px 0;
+  padding: 22px 28px 22px 48px;
+  color: var(--color-primary-accent);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-style: italic;
+  font-size: 28px;
+  line-height: 1.34;
+  border-left: 0;
+}
+.pull-quote::before {
+  content: "“";
+  position: absolute;
+  left: 0;
+  top: -30px;
+  font-size: 128px;
+  line-height: 1;
+  color: var(--color-primary-accent);
+  opacity: .15;
+  font-style: normal;
+}
+
+.method-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 26px;
+  padding: 30px;
+  margin: 30px 0;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
+  position: relative;
+  overflow: hidden;
+}
+.method-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--color-primary-accent), #b88455);
+}
+.method-card:hover, .method-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+  border-color: rgba(139,94,60,.42);
+  outline: none;
+}
+.method-card h3 { margin-top: 12px !important; }
+.method-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.method-label {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  background: var(--color-primary-accent);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+.difficulty-pill {
+  display: inline-flex;
+  color: var(--color-secondary-accent);
+  background: rgba(74,124,89,.12);
+  border: 1px solid rgba(74,124,89,.18);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+.difficulty-scale {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+.difficulty-scale span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(139,94,60,.38);
+  background: transparent;
+}
+.difficulty-scale span.filled {
+  background: var(--color-primary-accent);
+  border-color: var(--color-primary-accent);
+}
+.method-steps {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height .45s ease, opacity .25s ease, margin-top .25s ease;
+  border-top: 1px solid transparent;
+}
+.method-card.is-open .method-steps {
+  max-height: 900px;
+  opacity: 1;
+  margin-top: 18px;
+  border-top-color: var(--color-border);
+  padding-top: 18px;
+}
+.method-card .feature-row { margin-top: 20px; }
+
+.feature-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.feature-row:last-child { border-bottom: none; }
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(139,94,60,.1);
+  border: 1px solid rgba(139,94,60,.18);
+  border-radius: 16px;
+  color: var(--color-primary-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feature-content h4 { margin-bottom: 4px; font-family: var(--font-body); }
+.feature-content p { margin-bottom: 0; color: var(--color-muted); }
+.feature-tag {
+  background: var(--color-parchment);
+  color: var(--color-primary-accent);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.saas-band {
+  background:
+    radial-gradient(circle at 25% 20%, rgba(255,250,241,.14), transparent 18rem),
+    linear-gradient(145deg, #2E2416, #3d2b1d 58%, #4A321f);
+  color: #fffaf1;
+  padding: 84px 0;
+  text-align: center;
+  overflow: hidden;
+}
+.saas-band h2 { color: #fffaf1; font-size: clamp(32px, 4vw, 48px); }
+.saas-band p { color: rgba(255,250,241,.78); margin-left: auto; margin-right: auto; }
+.saas-mockup {
+  background: rgba(255,250,241,.08);
+  border: 1px solid rgba(255,250,241,.18);
+  border-radius: 28px;
+  padding: 22px;
+  max-width: 880px;
+  margin: 34px auto 32px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.28);
+}
+.product-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 18px;
+  align-items: center;
+}
+.product-screen,
+.product-boxshot {
+  width: 100%;
+  max-height: 430px;
+  object-fit: contain;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(255,250,241,.22);
+  padding: 8px;
+}
+.product-boxshot {
+  max-height: 260px;
+  box-shadow: 0 16px 34px rgba(0,0,0,.24);
+}
+.saas-chips {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 34px;
+  flex-wrap: wrap;
+}
+.saas-chip {
+  background: rgba(255,250,241,.11);
+  border: 1px solid rgba(255,250,241,.16);
+  color: #fffaf1;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.saas-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.saas-actions .btn-outline { border-color: rgba(255,250,241,.55); color: #fffaf1; }
+.saas-actions .btn-outline:hover { background: #fffaf1; color: var(--color-body-text); }
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin: 32px 0;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+  background: transparent;
+}
+.comp-table th, .comp-table td {
+  padding: 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+.comp-table th {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  background: #fffaf1;
+  color: var(--color-body-text);
+}
+.comp-table tbody tr { background: transparent !important; transition: background var(--transition-speed); }
+.comp-table tbody tr:hover { background: var(--color-parchment) !important; }
+.comp-table .verdict-row {
+  background: var(--color-primary-accent) !important;
+  color: #fff;
+}
+.comp-table .verdict-row:hover { background: var(--color-primary-accent-dark) !important; }
+.comp-table .verdict-row td { border-bottom: none; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+
+.accordion-item {
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(255,255,255,.62);
+  border-radius: 18px;
+  margin-bottom: 12px;
+  padding: 0 18px;
+}
+.accordion-header {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 18px 0;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-body-text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.accordion-header::after { content: '+'; color: var(--color-primary-accent); font-size: 1.5rem; font-weight: 400; }
+.accordion-header[aria-expanded="true"]::after { content: '−'; }
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+.accordion-content-inner { padding-bottom: 18px; color: var(--color-body-text); }
+
+.interactive-tool {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 26px;
+  padding: 32px;
+  margin: 40px 0;
+  box-shadow: var(--shadow-soft);
+}
+.tool-header { margin-bottom: 24px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; }
+.tool-group { margin-bottom: 20px; }
+.tool-group label { display: block; font-weight: 700; margin-bottom: 8px; }
+.tool-select {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 16px;
+  background: #fffaf1;
+  color: var(--color-body-text);
+}
+.tool-result {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 16px;
+  font-weight: 500;
+  display: none;
+}
+.result-low { background-color: #e6f4ea; color: #1e6b35; border: 1px solid #c8e6d0; }
+.result-med { background-color: #fff4d8; color: #8a5200; border: 1px solid #f0dfad; }
+.result-high { background-color: #fbe9e2; color: #a53a1e; border: 1px solid #efc8ba; }
+
+.faq-group { margin-bottom: 40px; }
+.faq-item {
+  margin-bottom: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 22px;
+  background: rgba(255,255,255,.68);
+}
+.faq-item:last-child { margin-bottom: 0; }
+.faq-item h4 { font-family: var(--font-heading); margin-bottom: 8px; }
+.faq-item p { margin-bottom: 0; }
+
+.pricing-prose {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 26px;
+  padding: 32px;
+  margin: 32px 0;
+  box-shadow: var(--shadow-soft);
+}
+.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+.pricing-col {
+  background: var(--color-parchment);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 24px;
+}
+.pricing-col h4 { border-bottom: 2px solid var(--color-border); padding-bottom: 10px; }
+
+.resource-grid {
+  display: grid;
+  gap: 24px;
+}
+.resource-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  column-gap: 30px;
+  row-gap: 10px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border-left: 5px solid var(--color-primary-accent);
+}
+.resource-card h4,
+.resource-card p,
+.resource-card a {
+  grid-column: 1;
+}
+.resource-card h4 {
+  margin: 0 0 4px;
+}
+.resource-card p {
+  margin: 0;
+  max-width: 54ch;
+}
+.resource-card a {
+  align-self: start;
+  justify-self: start;
+  font-weight: 800;
+  margin-top: 8px;
+}
+.resource-card-img {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  justify-self: end;
+  width: 100%;
+  max-width: 190px;
+  max-height: 160px;
+  object-fit: contain;
+  background: var(--color-parchment);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: none;
+}
+
+.text-center { text-align: center; }
+.text-center p { margin-left: auto; margin-right: auto; }
+
+footer {
+  background: #2E2416;
+  color: #fffaf1;
+  padding: 68px 0 32px;
+  font-size: 14px;
+}
+footer a { color: #f0d9c4; }
+footer a:hover { color: #fff; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 46px;
+  margin-bottom: 44px;
+}
+.footer-col h4 { color: #fffaf1; font-family: var(--font-heading); font-size: 17px; margin-bottom: 16px; }
+.footer-col .brand-logo-group { margin-bottom: 16px; }
+.footer-col .site-name { color: #fffaf1; }
+.footer-col .brand-mark { box-shadow: none; }
+.footer-col ul { list-style: none; padding: 0; }
+.footer-col li { margin-bottom: 8px; }
+.footer-disclosure {
+  border-top: 1px solid rgba(255,250,241,.18);
+  padding-top: 24px;
+  color: rgba(255,250,241,.7);
+  font-size: 13px;
+}
+
+@media (max-width: 1480px) {
+  .sticky-toc-sidebar { display: none; }
+}
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 34px; }
+  .hero-illustration { justify-self: start; width: min(330px, 100%); height: 330px; }
+  .nav-links { gap: 12px; }
+}
+@media (max-width: 768px) {
+  body { font-size: 16px; padding-bottom: 76px; }
+  section { padding: 54px 0; }
+  .mobile-menu-btn { display: block; }
+  .nav-container { height: 68px; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 68px;
+    left: 16px;
+    right: 16px;
+    background: rgba(255,250,241,.98);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+  }
+  .nav-links.active { display: flex; }
+  .nav-cta { text-align: center; }
+  .site-name { font-size: 18px; }
+  .brand-mark { width: 38px; height: 34px; }
+  .hero { padding-top: 54px; }
+  .quick-answer { padding: 22px; }
+  .meta-bar { font-size: 10px; }
+  .pull-quote { font-size: 20px; padding-left: 34px; }
+  .pull-quote::before { font-size: 94px; top: -20px; }
+  .grid-2, .pricing-grid, .footer-grid { grid-template-columns: 1fr; }
+  .product-showcase { grid-template-columns: 1fr; }
+  .product-boxshot { max-width: 160px; margin: 0 auto; }
+  .method-card { padding: 24px; }
+  .resource-card { grid-template-columns: 1fr; }
+  .resource-card h4,
+  .resource-card p,
+  .resource-card a,
+  .resource-card-img {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .resource-card-img {
+    justify-self: start;
+    max-width: 220px;
+    max-height: 220px;
+    margin-top: 8px;
+  }
+  .mobile-current-section {
+    display: block;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 1200;
+    background: rgba(46,36,22,.96);
+    color: #fffaf1;
+    border: 1px solid rgba(255,250,241,.18);
+    box-shadow: 0 16px 38px rgba(46,36,22,.22);
+    border-radius: 18px;
+    padding: 11px 14px;
+  }
+  .mobile-current-section span {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    opacity: .68;
+    line-height: 1.2;
+  }
+  .mobile-current-section strong {
+    display: block;
+    font-size: 13px;
+    line-height: 1.35;
+    margin-top: 3px;
+  }
+}
+
+</style>
+</head>
+<body>
+<!-- Signature Detail: Reading Progress Bar -->
+<div id="reading-progress"></div>
+<header id="site-header">
+<div class="nav-container">
+<a class="brand-logo-group" href="#"><span aria-hidden="true" class="brand-mark"><span class="brand-folder-shape"></span><span class="brand-lock-shape"></span></span>
+
+<span class="site-name">Dropbox Security Hub</span>
+</a>
+<button aria-label="Toggle menu" class="mobile-menu-btn">
+<span></span><span></span><span></span>
+</button>
+<nav class="nav-links">
+<a href="#overview">Guide</a>
+<a href="#methods">Methods</a>
+<a href="#vault">Dropbox Vault</a>
+<a href="#encryption">Encryption</a>
+<a href="#faq">FAQ</a>
+<a class="nav-cta" href="#recommendation">See Our Top Pick →</a>
+</nav>
+</div>
+</header>
+<main><aside aria-label="Section navigation" class="sticky-toc-sidebar"><span class="sidebar-kicker">On this page</span><ul><li><a href="#overview">Can You Lock a Folder in Dropbox? Full Guide</a></li><li><a href="#methods">Method 1: Password Protect a Shared Dropbox Link</a></li><li><a href="#vault">Method 2: Dropbox Vault: How to Set Up and Use</a></li><li><a href="#encryption">Method 3: Password Protect Files Before Uploading to Dropbox</a></li><li><a href="#recommendation">The Tool We Recommend for Most Users</a></li><li><a href="#permissions">Restrict Access to Dropbox Shared Folders</a></li><li><a href="#troubleshooting">Troubleshooting &amp; Access Recovery</a></li><li><a href="#faq">Frequently Asked Questions</a></li></ul></aside>
+<!-- S1: Article Hero -->
+<section class="hero">
+<div class="container-full hero-grid"><div class="hero-copy">
+<div class="breadcrumb">
+<a href="#">Home</a> › Guides › Cloud Security
+        </div>
+<h1>How to Password Protect and Lock Folders in Dropbox</h1>
+<p class="hero-intro">If you store sensitive files in the cloud, standard permissions aren't always enough. Learn the proven methods to restrict access, set up Dropbox Vault, and encrypt files before syncing.</p>
+
+<div class="quick-answer">
+<span class="label-caps">Quick Answer</span>
+<p><strong>Can you password protect a folder in Dropbox?</strong> Dropbox does not offer a native feature to put a password on standard folders. To lock files, you must use <strong>Dropbox Vault</strong> (available on Plus/Family plans), password-protect a shared link when sending files, or use a third-party encryption tool like <strong>Folder Lock</strong> to encrypt the files locally before uploading them to the cloud.</p>
+</div><div class="meta-bar">
+<span>By Editorial Team</span>
+<span>•</span>
+<span>Updated May 2026</span>
+<span>•</span>
+<span>12 min read</span>
+</div>
+
+</div><div aria-hidden="true" class="hero-illustration"><span class="doc-stack doc-one"></span><span class="doc-stack doc-two"></span><span class="folder-illustration"></span><span class="folder-tab"></span><span class="folder-lock"></span><span class="folder-keyhole"></span><span class="folder-leaf"></span></div></div>
+</section>
+<!-- S2: Table of Contents -->
+<section class="bg-tint">
+<div class="container">
+<div class="toc-card">
+<h3>In This Guide</h3>
+<ul>
+<li><a href="#overview">Can You Lock a Folder in Dropbox? Full Guide</a></li>
+<li><a href="#methods">Method 1: Password Protect a Shared Dropbox Link</a></li>
+<li><a href="#vault">Method 2: Dropbox Vault: How to Set Up and Use</a></li>
+<li><a href="#encryption">Method 3: Password Protect Files Before Uploading to Dropbox</a></li>
+<li><a href="#recommendation">The Tool We Recommend for Most Users</a></li>
+<li><a href="#permissions">Restrict Access to Dropbox Shared Folders</a></li>
+<li><a href="#troubleshooting">Troubleshooting &amp; Access Recovery</a></li>
+<li><a href="#faq">Frequently Asked Questions</a></li>
+</ul>
+</div>
+</div>
+</section>
+<!-- S3: Overview & Direct Answer -->
+<section id="overview">
+<div class="container">
+<h2>Can You Lock a Folder in Dropbox? Full Guide</h2>
+<p>A common scenario for <a href="https://newspioneer.co.uk/what-to-keep-local-vs-cloud/" rel="noopener noreferrer" target="_blank">cloud storage</a> users is wanting to restrict access to a specific folder within their account. You might share a computer, or perhaps you want an extra layer of security in case your Dropbox account is ever compromised. The exact query "how to lock a dropbox folder" is one of the most frequently searched topics regarding cloud security.</p>
+<p>The short answer is that <strong>standard Dropbox folders cannot be locked with a password</strong>. Dropbox’s security architecture relies on account-level authentication (your login and two-factor authentication). Once you are logged into your account on an app or browser, all standard files are accessible.</p><blockquote class="pull-quote">standard Dropbox folders cannot be locked with a password</blockquote>
+<p>However, you do have three effective ways to achieve folder protection depending on your goal:</p>
+<ol>
+<li><strong>If sharing with others:</strong> You can password protect a shared link so only recipients with the password can download the contents.</li>
+<li><strong>If protecting personal files in your account:</strong> You can use Dropbox Vault, a PIN-protected folder designed for sensitive documents (requires a paid plan).</li>
+<li><strong>For maximum security (Zero-Knowledge):</strong> You can encrypt the files locally on your computer using third-party software before they ever sync to the Dropbox cloud.</li>
+</ol>
+<p>This guide covers all three approaches in detail so you can choose the right level of security for your files.</p>
+</div><img alt="Secured cloud storage concept showing protected folders and encrypted data access" class="content-img" decoding="async" loading="lazy" src="https://i.ibb.co/ks87GMGG/Secured-Cloud.jpg"/>
+</section>
+<!-- S4: Complete Methods Guide -->
+<section class="bg-tint" id="methods">
+<div class="container">
+<h2>How to Secure Your Dropbox Folders</h2>
+<!-- Method 1 -->
+<div aria-expanded="false" class="method-card" data-difficulty="1" role="button" tabindex="0"><div class="method-card-meta"><span class="method-label">Method 1</span><span class="difficulty-pill">Difficulty: Easy</span><span aria-label="Difficulty 1 of 5" class="difficulty-scale"><span class="filled"></span><span class=""></span><span class=""></span><span class=""></span><span class=""></span></span></div><h3 id="shared-link">Method 1: Password Protect a Shared Dropbox Link</h3>
+<p>If your goal is to share a folder securely with a client or colleague, you don't need to lock the folder within your own account. Instead, you lock the <em>link</em> you send them. This ensures that even if the link is forwarded or intercepted, the files remain secure.</p>
+<div class="callout">
+<strong>Note:</strong> This feature requires a Dropbox Professional, Standard, Advanced, or Enterprise account. It is not available on the basic free tier.
+        </div>
+
+<img alt="Secure file transfer workflow showing password-protected sharing without exposing credentials" class="content-img" decoding="async" loading="lazy" src="https://i.ibb.co/4RQm9JNL/secure-transfer-without-password-sharing.jpg"/>
+<div class="feature-row">
+<div class="feature-icon">
+<svg fill="none" height="24" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+</div>
+<div class="feature-content">
+<h4>Security Profile</h4>
+<p>Prevents unauthorized access during transit and sharing. <span class="feature-tag">Difficulty: Easy</span></p>
+</div>
+</div>
+<!-- Method 2 -->
+<div class="method-steps"><p><strong>Step-by-step:</strong></p><ol>
+<li>Log in to dropbox.com.</li>
+<li>Hover over the folder you want to share and click the <strong>Share</strong> button (rectangle with an up arrow).</li>
+<li>Click <strong>Settings</strong> or the gear icon in the sharing window.</li>
+<li>Select <strong>Link for viewing</strong> or <strong>Link for editing</strong> depending on your needs.</li>
+<li>Toggle <strong>Require password</strong> to On.</li>
+<li>Enter a strong password and click <strong>Save</strong>.</li>
+<li>Copy the link and send it to your recipient. Communicate the password securely via a different channel (e.g., text message or a secure messaging app).</li>
+</ol></div></div><div aria-expanded="false" class="method-card" data-difficulty="2" role="button" tabindex="0"><div class="method-card-meta"><span class="method-label">Method 2</span><span class="difficulty-pill">Difficulty: Easy</span><span aria-label="Difficulty 2 of 5" class="difficulty-scale"><span class="filled"></span><span class="filled"></span><span class=""></span><span class=""></span><span class=""></span></span></div><h3 id="vault" style="margin-top: 48px;">Method 2: Dropbox Vault: How to Set Up and Use</h3>
+<p>If you want to secure files within your own account—protecting them from someone who might gain access to your unlocked phone or computer—Dropbox Vault is the native solution. Vault creates a specific folder secured by a 6-digit PIN.</p>
+<div class="callout">
+<strong>Note:</strong> Vault is available to users on Dropbox Plus, Family, and Professional plans.
+        </div>
+
+
+<p><strong>Limitations to consider:</strong> While Vault adds a layer of privacy against casual snooping on your devices, it does not encrypt the files differently on Dropbox's servers. It is a PIN gate, not <a href="https://www.windowscentral.com/how-encrypt-data-storing-it-cloud-and-why-you-should" rel="noopener noreferrer" target="_blank">client-side encryption</a>.</p>
+<img alt="Digital data protection vault illustrating secure localized folder locking" class="content-img" src="https://i.ibb.co/bMzYGK6K/Data-Protection-Vault.jpg"/>
+<!-- Method 3 -->
+<div class="method-steps"><p><strong>Step-by-step setup:</strong></p><ol>
+<li>Log in to dropbox.com.</li>
+<li>Click your avatar at the top right and select <strong>Settings</strong>, or look for <strong>Vault</strong> in the left sidebar under your file list.</li>
+<li>Click <strong>Create Vault</strong>.</li>
+<li>Set a 6-digit PIN. <strong>Do not forget this PIN.</strong> Dropbox cannot recover it for you.</li>
+<li>You will be prompted to designate trusted contacts who can access the Vault in an emergency. This is optional but recommended.</li>
+<li>Once created, move your sensitive files into the Vault folder.</li>
+</ol></div></div><div aria-expanded="false" class="method-card" data-difficulty="3" role="button" tabindex="0"><div class="method-card-meta"><span class="method-label">Method 3</span><span class="difficulty-pill">Difficulty: Medium</span><span aria-label="Difficulty 3 of 5" class="difficulty-scale"><span class="filled"></span><span class="filled"></span><span class="filled"></span><span class=""></span><span class=""></span></span></div><h3 id="encryption" style="margin-top: 48px;">Method 3: Password Protect Files Before Uploading to Dropbox</h3>
+<p>For confidential business files, financial records, or strict compliance needs, relying on standard cloud security may not suffice. The most secure approach is <strong>client-side encryption</strong>—encrypting the files on your own device before Dropbox syncs them to the cloud.</p>
+<p>This ensures that even if Dropbox is breached, or an employee goes rogue, the files are unreadable gibberish without your encryption key. This is often called "Zero-Knowledge" security because the cloud provider has zero knowledge of your file contents.</p>
+<p>To do this, you need third-party <a href="https://www.techradar.com/best/best-encryption-software" rel="noopener noreferrer" target="_blank">encryption software</a>. You create an encrypted container (a virtual locked folder) inside your local Dropbox folder. When the container is locked, Dropbox syncs the encrypted blob. When you unlock it locally to work on files, Dropbox syncs the changes inside the encrypted blob.</p>
+<img alt="Chained data representing zero-knowledge client-side encryption for Dropbox files" class="content-img" src="https://i.ibb.co/ZpPNbpGY/Chained-Data.jpg"/>
+</div></div>
+</section>
+<!-- S5: Premium SaaS Moment (Why Recommend) -->
+<section class="saas-band" id="recommendation">
+<div class="container-full">
+<h2>The Tool We Recommend for Pre-Cloud Encryption</h2>
+<p>If you need true client-side encryption before your files sync to Dropbox, standard permissions aren't enough. Of all the third-party tools we evaluated for securing cloud folders, here is why we recommend Folder Lock.</p>
+<div class="saas-mockup"><div class="product-showcase"><img alt="Folder Lock 10 desktop locker screen showing encrypted file locker management" class="product-screen" decoding="async" loading="lazy" src="https://i.ibb.co/210hR8f6/folder-lock-10-desktop-locker-screen.png"/><img alt="Folder Lock 10 Pro boxshot for client-side file encryption before Dropbox sync" class="product-boxshot" decoding="async" loading="lazy" src="https://i.ibb.co/Psv235rk/folder-lock-10-pro-boxshot-160x220.png"/></div></div>
+<div class="saas-chips">
+<span class="saas-chip">AES-256 Bit Encryption</span>
+<span class="saas-chip">Works with Dropbox &amp; Google Drive</span>
+<span class="saas-chip">Zero-Knowledge Architecture</span>
+<span class="saas-chip">Cross-Platform Syncing</span>
+</div>
+<div class="saas-actions">
+<a class="btn btn-filled" href="https://www.newsoftwares.net/download/folderlock10-en/folderlock10-en.exe" rel="noopener noreferrer" target="_blank">Try Folder Lock Free →</a>
+<a class="btn btn-outline" href="https://store.newsoftwares.net/?add=fl10" rel="noopener noreferrer" target="_blank">Get the Full Version →</a>
+</div>
+</div>
+</section>
+<!-- Cross-Platform Support -->
+<section class="bg-tint">
+<div class="container">
+<h2>Seamless Security Across All Your Devices</h2>
+<p>One of the biggest challenges with encrypting cloud files is ensuring you can still access them regardless of the device you are using. If you encrypt a file on your work PC, you still need to be able to open it on your phone or your MacBook.</p>
+<p>Folder Lock is designed to maintain your security posture across the entire Apple and PC ecosystem. By creating a secure locker on your desktop, that same encrypted container can be synced via Dropbox to your other devices. </p>
+<img alt="Syncing encrypted files securely across Dropbox, OneDrive, iCloud, and Google Drive platforms" class="content-img" src="https://i.ibb.co/xqgxb3Pj/syncing-files-securely-onedrive-dropbox-icloud-and-google-drive.jpg"/>
+<div class="grid-2" style="margin-top: 32px;">
+<div class="card">
+<h4>Desktop Protection (Windows &amp; Mac)</h4>
+<p>The desktop versions serve as your primary encryption hub. You can create large encrypted lockers (up to 1GB on the free tier, and unlimited size on the Pro version). These lockers sit right inside your Dropbox sync folder. Whether you use a Windows PC or a Mac running macOS 13 or later, the core AES 256-bit encryption engine operates exactly the same way.</p>
+</div>
+<div class="card">
+<h4>Mobile Access (iOS &amp; Android)</h4>
+<p>When you need to access those synced, encrypted files on the go, the companion mobile apps step in. Folder Lock is available on both the App Store and Google Play. These apps allow you to connect to your cloud storage, download the encrypted locker, and unlock it locally on your phone to view or edit the contents securely. They also offer mobile-specific privacy tools like hiding photos, locking specific apps (on Android), and secure browsing.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- S8: Methods Comparison Table -->
+<section>
+<div class="container">
+<h2>Comparison: Dropbox Security Methods</h2>
+<p>Choosing how to lock a file in dropbox depends entirely on who you are protecting the files from.</p><img alt="Military grade file shield illustrating stronger protection for confidential Dropbox data" class="content-img" decoding="async" loading="lazy" src="https://i.ibb.co/C5sfWRJm/Military-Grade-File-Shield.jpg"/>
+<div class="comparison-table-wrapper">
+<table class="comp-table">
+<thead>
+<tr>
+<th>Method</th>
+<th>Difficulty</th>
+<th>Security Level</th>
+<th>Best For</th>
+<th>Limitations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Password Shared Link</strong></td>
+<td>Easy</td>
+<td>Moderate</td>
+<td>Sending files to clients</td>
+<td>Requires paid plan; doesn't protect local files.</td>
+</tr>
+<tr>
+<td><strong>Dropbox Vault</strong></td>
+<td>Easy</td>
+<td>Moderate</td>
+<td>Casual local privacy</td>
+<td>No true client-side encryption; paid plans only.</td>
+</tr>
+<tr class="verdict-row">
+<td><strong>Pre-Upload Encryption (Folder Lock)</strong></td>
+<td>Medium</td>
+<td>Highest (AES-256)</td>
+<td>Confidential data, compliance</td>
+<td>Requires third-party software installation.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- S10: Deep Dive Accordion (Cloud Architecture) -->
+<section class="bg-tint">
+<div class="container">
+<h2>How Cloud Storage Encryption Actually Works</h2>
+<img alt="Cloud secure lock icon representing protected cloud folders and encrypted syncing" class="content-img compact-illustration" decoding="async" loading="lazy" src="https://i.ibb.co/9mQy37sk/cloud-secure-lock-cloud-icon.png"/><div class="grid-2">
+<div>
+<div class="accordion-item">
+<button aria-expanded="false" class="accordion-header">Encryption in Transit vs At Rest</button>
+<div class="accordion-content">
+<div class="accordion-content-inner">
+<p>When you upload a file to Dropbox, it uses TLS/SSL (<a href="https://elearningindustry.com/how-to-secure-elearning-cloud-storage-and-data-in-transit" rel="noopener noreferrer" target="_blank">encryption in transit</a>) to protect the data while it travels over the internet. Once it arrives on Dropbox servers, it is encrypted using 256-bit AES (encryption at rest). This protects against external hackers breaching Dropbox servers.</p>
+</div>
+</div>
+</div>
+<div class="accordion-item">
+<button aria-expanded="false" class="accordion-header">The Problem with Server-Side Encryption</button>
+<div class="accordion-content">
+<div class="accordion-content-inner">
+<p>While Dropbox encrypts your files at rest, <em>they hold the encryption keys</em>. This means Dropbox employees (in specific circumstances), law enforcement with a warrant, or hackers who breach the key management system could theoretically access your files. This is why standard cloud storage is not considered "Zero-Knowledge."</p>
+</div>
+</div>
+</div>
+<div class="accordion-item">
+<button aria-expanded="false" class="accordion-header">Why Zero-Knowledge Encryption Matters</button>
+<div class="accordion-content">
+<div class="accordion-content-inner">
+<p>Zero-Knowledge (or client-side) encryption means files are encrypted on your device using a password only you know before they are uploaded. The cloud provider only stores encrypted gibberish. If they are breached, your data remains secure.</p>
+</div>
+</div>
+</div>
+</div>
+<div>
+<img alt="Comparison of digital cloud architecture and physical security encryption at rest" class="content-img" src="https://i.ibb.co/chqG7MnN/digital-and-physical-security.jpg" style="margin: 0;"/>
+</div>
+</div>
+</div>
+</section>
+<!-- S14/S21: Deep Dive Sections & Permissions -->
+<section id="permissions">
+<div class="container">
+<h2>Restrict Access to Dropbox Shared Folders</h2>
+<p>If you manage a team or share files extensively, relying on passwords isn't always practical. You need to manage permissions effectively.</p>
+<h3>Permissions vs Encryption — What Cloud Providers Don't Tell You</h3>
+<p>A common mistake is confusing permissions with encryption. Removing someone's edit access (making them a viewer) is a permission setting. It prevents them from altering the file on Dropbox. However, if they download the file, they can edit their local copy. Permissions control the cloud environment; encryption controls the file itself, regardless of where it lives.</p><blockquote class="pull-quote">Permissions control the cloud environment; encryption controls the file itself, regardless of where it lives.</blockquote>
+<h3>How to Audit Who Has Access to Your Shared Cloud Folders</h3>
+<p>Regularly auditing access is a critical security habit:</p><img alt="Folder Lock share permissions screen showing controlled access for protected files" class="content-img" decoding="async" loading="lazy" src="https://i.ibb.co/1fDfv4Jj/folder-lock-10-screenshot-share-permissions.png"/>
+<ol>
+<li>Go to the <strong>Shared</strong> tab in your Dropbox account.</li>
+<li>Review the list of folders and links.</li>
+<li>Click the ellipsis (...) next to a folder and select <strong>Share</strong>.</li>
+<li>Click <strong>Who can access</strong> to see the list of members.</li>
+<li>Remove members who no longer need access, or change their permissions from <em>Can edit</em> to <em>Can view</em>.</li>
+</ol>
+<img alt="Centralized office security monitoring screen demonstrating team permissions management" class="content-img" src="https://i.ibb.co/qYsK6dYX/Centralized-Office-Security.jpg"/>
+<h3>How to Revoke Access to a Shared Cloud Folder</h3>
+<p>If an employee leaves or a project ends, revoke access immediately. Follow the steps above to view the member list, click the dropdown next to the person's name, and select <strong>Remove</strong>. You will be prompted to decide whether to let them keep a copy of the folder; for sensitive data, ensure you do not allow them to keep a local copy (though they may have already copied files while they had access).</p>
+</div>
+</section>
+<!-- Interactive Component -->
+<section class="bg-tint">
+<div class="container">
+<div class="interactive-tool" id="risk-calculator">
+<div class="tool-header">
+<h3 style="margin-top:0;">File Sharing Risk Calculator</h3>
+<p style="margin-bottom:0; font-size:14px; color:var(--color-meta-text);">Evaluate the security risk of your current Dropbox sharing setup.</p>
+</div>
+<div class="tool-group">
+<label>How are you sharing the file?</label>
+<select class="tool-select" id="calc-method">
+<option value="direct">Direct invite (requires recipient login)</option>
+<option value="link-pass">Link with password protection</option>
+<option value="link-open">Open link (anyone with link can view)</option>
+</select>
+</div>
+<div class="tool-group">
+<label>What is the sensitivity of the data?</label>
+<select class="tool-select" id="calc-data">
+<option value="public">Public / General information</option>
+<option value="internal">Internal company documents</option>
+<option value="confidential">Confidential / Financial / PII</option>
+</select>
+</div>
+<div class="tool-result" id="calc-result">
+<!-- Result injected via JS -->
+</div>
+</div>
+</div>
+</section>
+<!-- S16: Troubleshooting -->
+<section id="troubleshooting">
+<div class="container">
+<h2>Troubleshooting &amp; Access Recovery</h2>
+<p>When dealing with secure folders, losing access is a major concern. Here is how to handle common issues legitimately.</p><img alt="Security monitoring attempts interface for detecting unauthorized access to protected files" class="content-img" decoding="async" loading="lazy" src="https://i.ibb.co/DPBbtBCG/Monitoring-Attempts.jpg"/>
+<img alt="User securely accessing data and unlocking an encrypted locker account online" class="content-img" src="https://i.ibb.co/gLVNxgq4/Accessing-Data-Unlocking.jpg"/>
+<h3>Dropbox I Forgot My Password</h3>
+<p>If you forget your main Dropbox account password, you can reset it via the login page by clicking "Forgot your password?". You will need access to the email address associated with the account. If you have two-step verification enabled, you will also need your backup codes or authenticator app.</p>
+<h3>Forgot Dropbox Vault PIN</h3>
+<p><strong>Warning:</strong> If you forget your Dropbox Vault PIN, Dropbox support <strong>cannot</strong> reset it or recover the files for you. This is a deliberate security design. The only way to regain access is if you previously set up a trusted contact and they have not forgotten their PIN. If you cannot remember the PIN, the contents of the Vault are permanently inaccessible.</p>
+<h3>How to Remove Folder Lock</h3>
+<p>If you used a third-party tool like Folder Lock to encrypt files before uploading them to Dropbox, and you wish to remove the protection:</p>
+<ol>
+<li>Open the Folder Lock application on your computer.</li>
+<li>Enter your master password to unlock your secure locker.</li>
+<li>Select the files or folders you wish to decrypt.</li>
+<li>Choose the option to decrypt or extract the files to a standard, unprotected location on your drive.</li>
+<li>Once extracted, you can delete the encrypted locker file.</li>
+</ol>
+<p>Do not attempt to bypass or "crack" third-party encryption using unverified tools online, as these are often malware disguised as recovery tools.</p>
+</div>
+</section>
+<!-- S12: Pricing Reference (Editorial) -->
+<section class="bg-tint" id="pricing">
+<div class="container">
+<div class="pricing-prose">
+<h3>Folder Lock Pricing: What You Get</h3><img alt="Folder Lock 10 software boxshot for secure local encryption before cloud upload" class="content-img product-inline" decoding="async" loading="lazy" src="https://i.ibb.co/V0Sw4tk7/folder-lock-10-boxshot.png"/>
+<p>If you decide to implement client-side encryption before syncing to Dropbox, Folder Lock offers a clear tiering structure based on your capacity and feature needs.</p>
+<div class="pricing-grid">
+<div class="pricing-col">
+<h4>Free Version</h4>
+<p>The free tier acts as a robust starting point. It allows you to create secure lockers up to 1GB in size. This is perfect for testing the interface and securing a small batch of sensitive documents before syncing them to Dropbox. It includes cross-platform access, meaning you can sync your locker and open it on up to two devices using the mobile apps.</p>
+<a class="btn btn-outline" href="https://www.newsoftwares.net/download/folderlock10-en/folderlock10-en.exe" rel="noopener noreferrer" style="margin-top:16px;" target="_blank">Download Free Version →</a>
+</div>
+<div class="pricing-col">
+<h4>Full Version (Pro)</h4>
+<p>The Pro upgrade removes the training wheels. For a flat fee (currently around $39.95), the locker size limit is entirely removed, allowing you to encrypt massive volumes of data. Device syncing expands to support up to five devices. Crucially for business users, the Pro version also unlocks the ability to share files securely with an unlimited number of users and adds advanced data destruction (file shredding) capabilities.</p>
+<a class="btn btn-outline" href="https://store.newsoftwares.net/?add=fl10" rel="noopener noreferrer" style="margin-top:16px;" target="_blank">View Full Version Pricing →</a>
+</div>
+</div>
+</div>
+<div class="card" style="margin-top: 32px;">
+<h4>Looking for a lighter alternative?</h4>
+<p>If your primary goal is simply to hide folders from view on a shared local computer, rather than applying military-grade encryption for cloud syncing, NewSoftwares also offers <strong>Folder Lock Lite</strong>. This streamlined version provides basic folder locking without the heavy cryptographic engine, making it a faster, simpler solution for basic local privacy.</p>
+</div>
+</div>
+</section>
+<!-- S20: FAQ -->
+<section id="faq">
+<div class="container">
+<div class="faq-group">
+<span class="label-caps">Frequently Asked Questions</span>
+<h2>Common Questions About Dropbox Security</h2><img alt="Sensitive personal data protected by privacy safeguards and encryption best practices" class="content-img compact-illustration" decoding="async" loading="lazy" src="https://i.ibb.co/Zpt5NfpT/sensitive-personal-data.jpg"/>
+<div class="faq-item">
+<h4>Does Dropbox have a <a href="https://cloudstorageinfo.org/folder-lock-review" rel="noopener noreferrer" target="_blank">folder lock feature</a>?</h4>
+<p>Not for standard folders. Dropbox relies on account login security. To lock files within your account, you must use Dropbox Vault (requires a paid plan) or encrypt the files using third-party software before uploading.</p>
+</div>
+<div class="faq-item">
+<h4>Can I password protect a shared Dropbox link?</h4>
+<p>Yes, but only if you have a paid Dropbox account (Professional, Standard, Advanced, or Enterprise). Basic free users cannot password-protect shared links natively.</p>
+</div>
+<div class="faq-item">
+<h4>What is the difference between Dropbox Vault and a locked folder?</h4>
+<p>Dropbox Vault is a specific folder within your account secured by an additional 6-digit PIN. It provides privacy against someone who has access to your logged-in device. However, it does not apply client-side encryption to the files; they are stored on Dropbox servers just like regular files.</p>
+</div>
+<div class="faq-item">
+<h4>Can cloud service employees access my files?</h4>
+<p>Technically, yes. Because standard cloud providers like Dropbox, Google Drive, and OneDrive hold the encryption keys for the data stored on their servers, they have the technical capability to access files, usually strictly regulated for legal compliance or troubleshooting. This is why Zero-Knowledge encryption is recommended for highly sensitive data.</p>
+</div>
+<div class="faq-item">
+<h4>Is OneDrive/Google Drive/Dropbox safe for confidential business files?</h4>
+<p>They are safe from casual external hacking due to strong at-rest encryption. However, for strict compliance (like HIPAA or advanced GDPR requirements), relying solely on their native security is often insufficient. Best practice dictates encrypting sensitive files locally before syncing them to these platforms.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- S19: Related Products -->
+<section class="bg-tint">
+<div class="container">
+<h2>Related Security Tools</h2>
+<p>These tools are developed by NewSoftwares.net, the same team behind Folder Lock.</p>
+<div class="resource-grid">
+<div class="resource-card card">
+<h4>Cloud Secure</h4>
+<p>Designed specifically to lock your cloud sync folders (Dropbox, Google Drive, OneDrive) on your local PC, preventing unauthorized access to the synced files on your machine.</p>
+<a href="https://www.newsoftwares.net/cloud-secure/" rel="noopener noreferrer" target="_blank">Learn more →</a>
+<img alt="Cloud Secure product boxshot for locking local cloud sync folders" class="resource-card-img" decoding="async" loading="lazy" src="https://i.ibb.co/PBv0CDc/cloud-secure-boxshot.png"/></div>
+<div class="resource-card card">
+<h4>USB Secure</h4>
+<p>If you prefer physical backups over the cloud, USB Secure password-protects portable drives, ensuring data is safe if the drive is lost or stolen.</p>
+<a href="https://www.newsoftwares.net/usb-secure/" rel="noopener noreferrer" target="_blank">Learn more →</a>
+<img alt="USB Secure product boxshot for password protecting portable USB drives" class="resource-card-img" decoding="async" loading="lazy" src="https://i.ibb.co/dJX03kDG/usb-secure-product-box-screenshot.jpg"/></div>
+</div>
+</div>
+</section>
+<!-- S22: Final Verdict -->
+<section>
+<div class="container text-center">
+<h2>Our Verdict</h2>
+<p style="max-width: 600px; margin: 0 auto 32px auto;">While Dropbox provides robust platform security, standard folders cannot be locked. For casual sharing, password-protecting links works well. For local privacy, Dropbox Vault is adequate. But if you require genuine security—ensuring no one but you can read your files, even in the event of a cloud breach—you must use client-side encryption before uploading.</p>
+<div style="display:flex; justify-content:center; gap:16px;">
+<a class="btn btn-outline" href="https://www.newsoftwares.net/download/folderlock10-en/folderlock10-en.exe" rel="noopener noreferrer" target="_blank">Try Folder Lock Free →</a>
+<a class="btn btn-outline" href="https://store.newsoftwares.net/?add=fl10" rel="noopener noreferrer" target="_blank">Get the Full Version →</a>
+</div>
+</div>
+</section>
+</main>
+<footer>
+<div class="container">
+<div class="footer-grid">
+<div class="footer-col">
+<a class="brand-logo-group" href="#"><span aria-hidden="true" class="brand-mark"><span class="brand-folder-shape"></span><span class="brand-lock-shape"></span></span>
+
+<h4 class="site-name" style="margin: 0;">Dropbox Security Hub</h4>
+</a>
+<p>Your complete guide to securing cloud storage, encrypting files, and managing permissions effectively.</p>
+</div>
+<div class="footer-col">
+<h4>Guide Sections</h4>
+<ul>
+<li><a href="#methods">Locking Methods</a></li>
+<li><a href="#vault">Dropbox Vault Guide</a></li>
+<li><a href="#encryption">Cloud Encryption Explained</a></li>
+<li><a href="#faq">Security FAQ</a></li>
+</ul>
+</div>
+<div class="footer-col">
+<h4>Legal &amp; Policy</h4>
+<ul>
+<li><a href="#">Privacy Policy</a></li>
+<li><a href="#">Terms of Use</a></li>
+<li><a href="#">Disclaimer</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-disclosure">
+<p>This site operates as an independent editorial resource. Some links may earn a referral commission at no cost to you. Product recommendations reflect editorial judgment and independent assessment.</p>
+<p>Folder Lock is developed by <a href="https://www.newsoftwares.net" rel="noopener noreferrer" target="_blank">NewSoftwares.net</a>.</p>
+<p>© 2026 Dropbox Security Hub</p>
+</div>
+</div>
+</footer>
+<!-- Schema Data -->
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "name": "How to Password Protect and Lock Folders in Dropbox",
+          "description": "Learn how to lock a folder in Dropbox, restrict access, and encrypt files before syncing. A complete guide to Dropbox folder security and password protection."
+        },
+        {
+          "@type": "WebSite",
+          "name": "DropboxSecurityHub",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "Organization",
+          "name": "NewSoftwares.net",
+          "url": "https://www.newsoftwares.net"
+        },
+        {
+          "@type": "Article",
+          "headline": "How to Password Protect and Lock Folders in Dropbox",
+          "author": {
+            "@type": "Organization",
+            "name": "Editorial Team"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "NewSoftwares.net"
+          },
+          "datePublished": "2026-05-22",
+          "dateModified": "2026-05-22"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Guides"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Cloud Security"
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Does Dropbox have a folder lock feature?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not for standard folders. Dropbox relies on account login security. To lock files within your account, you must use Dropbox Vault (requires a paid plan) or encrypt the files using third-party software before uploading."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I password protect a shared Dropbox link?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, but only if you have a paid Dropbox account (Professional, Standard, Advanced, or Enterprise). Basic free users cannot password-protect shared links natively."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the difference between Dropbox Vault and a locked folder?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Dropbox Vault is a specific folder within your account secured by an additional 6-digit PIN. It provides privacy against someone who has access to your logged-in device. However, it does not apply client-side encryption to the files; they are stored on Dropbox servers just like regular files."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "HowTo",
+          "name": "How to Password Protect a Shared Dropbox Link",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "text": "Log in to dropbox.com."
+            },
+            {
+              "@type": "HowToStep",
+              "text": "Hover over the folder you want to share and click the Share button."
+            },
+            {
+              "@type": "HowToStep",
+              "text": "Click Settings or the gear icon in the sharing window."
+            },
+            {
+              "@type": "HowToStep",
+              "text": "Select Link for viewing or Link for editing."
+            },
+            {
+              "@type": "HowToStep",
+              "text": "Toggle Require password to On and enter a strong password."
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+<!-- Interactive Logic & Behaviors -->
+<script defer="">
+
+document.addEventListener('DOMContentLoaded', () => {
+  const header = document.getElementById('site-header');
+  const progressBar = document.getElementById('reading-progress');
+  const menuBtn = document.querySelector('.mobile-menu-btn');
+  const navLinks = document.querySelector('.nav-links');
+
+  function updateChrome() {
+    if (header) {
+      header.classList.toggle('scrolled', window.scrollY > 10);
+    }
+    if (progressBar) {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+      progressBar.style.width = scrolled + "%";
+    }
+  }
+  updateChrome();
+  window.addEventListener('scroll', updateChrome, { passive: true });
+
+  if (menuBtn && navLinks) {
+    menuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        e.preventDefault();
+        if (navLinks) navLinks.classList.remove('active');
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  document.querySelectorAll('.method-card').forEach(card => {
+    const steps = card.querySelector('.method-steps');
+    if (!steps) return;
+    const toggle = () => {
+      const open = card.classList.toggle('is-open');
+      card.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('a')) return;
+      toggle();
+    });
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggle();
+      }
+    });
+  });
+
+  const accordions = document.querySelectorAll('.accordion-header');
+  accordions.forEach(acc => {
+    acc.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      accordions.forEach(otherAcc => {
+        if (otherAcc !== this) {
+          otherAcc.setAttribute('aria-expanded', 'false');
+          if (otherAcc.nextElementSibling) otherAcc.nextElementSibling.style.maxHeight = null;
+        }
+      });
+      this.setAttribute('aria-expanded', !isExpanded);
+      const content = this.nextElementSibling;
+      if (content) content.style.maxHeight = !isExpanded ? content.scrollHeight + "px" : null;
+    });
+  });
+
+  const calcMethod = document.getElementById('calc-method');
+  const calcData = document.getElementById('calc-data');
+  const calcResult = document.getElementById('calc-result');
+
+  function updateCalculator() {
+    if (!calcMethod || !calcData || !calcResult) return;
+    const method = calcMethod.value;
+    const data = calcData.value;
+    calcResult.style.display = 'block';
+    calcResult.className = 'tool-result';
+
+    if (data === 'public') {
+      calcResult.classList.add('result-low');
+      calcResult.innerHTML = "<strong>Risk Level: Low.</strong> Since the data is public, sharing via open link or direct invite carries minimal risk.";
+    } else if (data === 'internal') {
+      if (method === 'link-open') {
+        calcResult.classList.add('result-high');
+        calcResult.innerHTML = "<strong>Risk Level: High.</strong> Open links for internal documents can easily be forwarded or leaked. Switch to direct invites or password-protected links.";
+      } else {
+        calcResult.classList.add('result-med');
+        calcResult.innerHTML = "<strong>Risk Level: Moderate.</strong> You are using appropriate controls for internal data, but ensure you revoke access when projects end.";
+      }
+    } else if (data === 'confidential') {
+      if (method === 'direct' || method === 'link-pass') {
+        calcResult.classList.add('result-med');
+        calcResult.innerHTML = "<strong>Risk Level: Moderate to High.</strong> While password links and direct invites restrict access, standard cloud storage means the provider holds the keys. Consider <strong>client-side encryption</strong> before upload for true zero-knowledge security.";
+      } else {
+        calcResult.classList.add('result-high');
+        calcResult.innerHTML = "<strong>Risk Level: Critical.</strong> Never share confidential or PII data via open links. Use client-side encryption and secure transfer methods.";
+      }
+    }
+  }
+
+  if (calcMethod && calcData) {
+    calcMethod.addEventListener('change', updateCalculator);
+    calcData.addEventListener('change', updateCalculator);
+    updateCalculator();
+  }
+
+  const sidebarLinks = Array.from(document.querySelectorAll('.sticky-toc-sidebar a[href^="#"]'));
+  const mobileTitle = document.getElementById('mobile-current-title');
+  const observedTargets = sidebarLinks
+    .map(link => document.querySelector(link.getAttribute('href')))
+    .filter(Boolean);
+
+  const setActive = (id) => {
+    sidebarLinks.forEach(link => {
+      const active = link.getAttribute('href') === '#' + id;
+      link.classList.toggle('active', active);
+      if (active && mobileTitle) {
+        mobileTitle.textContent = link.textContent.trim();
+      }
+    });
+  };
+
+  if ('IntersectionObserver' in window && observedTargets.length) {
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible && visible.target.id) setActive(visible.target.id);
+    }, { rootMargin: '-18% 0px -68% 0px', threshold: [0.05, 0.2, 0.45, 0.7] });
+
+    observedTargets.forEach(target => observer.observe(target));
+    if (observedTargets[0].id) setActive(observedTargets[0].id);
+  }
+});
+
+</script>
+<div aria-live="polite" class="mobile-current-section"><span>Current section</span><strong id="mobile-current-title">Can You Lock a Folder in Dropbox? Full Guide</strong></div></body>
+</html>
