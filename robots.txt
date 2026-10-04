@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://how-to-password-protect-and-lock-folders-in-dropbox.vercel.app/sitemap.xml
